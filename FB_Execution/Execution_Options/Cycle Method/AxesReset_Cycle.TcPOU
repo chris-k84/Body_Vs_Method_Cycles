@@ -1,0 +1,106 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.11">
+  <POU Name="AxesReset_Cycle" Id="{f00a747f-ced8-4b51-92a6-e39291fac044}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK AxesReset_Cycle EXTENDS Cyclic_Task_Base
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	resetMover : Tc2_MC2.MC_Reset;
+	_axis : REFERENCE TO Tc2_MC2.AXIS_REF;
+	_ResetMover : BOOL;
+	state : INT;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="Abort" Id="{9db66f87-b5de-4db5-9aa9-0708d428ae0a}">
+      <Declaration><![CDATA[METHOD Abort : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[resetMover.Execute := FALSE;
+_busy := FALSE;
+_ResetMover := FALSE;
+Abort := TRUE;
+State := 0;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Cycle" Id="{7fc5fe64-2c7c-46ba-afd3-e1e90ac77e69}">
+      <Declaration><![CDATA[METHOD Cycle : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE State OF
+	0:
+		IF _ResetMover THEN
+			_done := FALSE;
+			_error := FALSE;
+			_busy := TRUE;
+			resetMover.Execute := TRUE;
+			IF resetMover.Busy THEN
+				State := 10;
+				_ResetMover := FALSE;
+			END_IF
+		END_IF
+	
+	10:
+		IF NOT resetMover.Busy THEN
+			IF resetMover.Done THEN
+				_done := TRUE;
+			ELSIF resetMover.Error THEN
+				_error := TRUE;
+			END_IF
+			_busy := FALSE;
+			resetMover.Execute := FALSE;
+			State := 0;
+		END_IF
+END_CASE
+
+resetMover(Axis := _axis);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Execute" Id="{f7b7fa5f-395b-48c5-9c5c-bd1ef10540fd}">
+      <Declaration><![CDATA[METHOD Execute : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Execute := _ResetMover := true;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_init" Id="{9dd84ea3-81b4-49b2-83fe-1fdca4ec9dc2}">
+      <Declaration><![CDATA[METHOD FB_init : BOOL
+VAR_INPUT
+	bInitRetains : BOOL; // if TRUE, the retain variables are initialized (warm start / cold start)
+	bInCopyCode : BOOL;  // if TRUE, the instance afterwards gets moved into the copy code (online change)
+	axis : reference TO AXIS_REF;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_axis REF= axis;]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="AxesReset_Cycle">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="AxesReset_Cycle.Abort">
+      <LineId Id="6" Count="3" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="AxesReset_Cycle.Cycle">
+      <LineId Id="6" Count="25" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="AxesReset_Cycle.Execute">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="AxesReset_Cycle.FB_init">
+      <LineId Id="7" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

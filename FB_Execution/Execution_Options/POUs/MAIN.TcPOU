@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.11">
+  <POU Name="MAIN" Id="{43cce68e-9fd6-4b79-8662-7c36a6a087d7}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+	Axis : AXIS_REF;
+	BodyExecution_AxisReset : AxesReset_Body(Axis);
+	CycleExecution_AxesReset : AxesReset_Cycle(Axis);
+	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[///////////////Cycle Call for Body execution//////////////
+BodyExecution_AxisReset();
+
+
+///////////////Cycle Call for Cycle execution////////////
+CycleExecution_AxesReset.Cycle();]]></ST>
+    </Implementation>
+    <LineIds Name="MAIN">
+      <LineId Id="2" Count="0" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="12" Count="1" />
+      <LineId Id="11" Count="0" />
+      <LineId Id="14" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>
